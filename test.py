@@ -1,18 +1,18 @@
 import pyxel
 import random
 
-STATE = ['start', 'playing', 'paused', 'game_over']
+SCORE = 0
 class Snake_Game:
     def __init__(self):
         # ---------------- Window Settings ---------------- #
         self.state = 'start'
         # Background color used when clearing the screen.
         self.bg_color = 5
-
+        self.speed = 1
         # Window dimensions.
         self.window_height = 180
         self.window_width = 180
-
+        self.score = 0
         # Create the game window.
         pyxel.init(
             self.window_width,
@@ -33,7 +33,7 @@ class Snake_Game:
         # (-1,0) -> Left
         # (0,-1) -> Up
         # (0,1)  -> Down
-        self.dir_x = 1
+        self.dir_x = self.speed
         self.dir_y = 0
 
         # ---------------- Apple ---------------- #
@@ -41,7 +41,7 @@ class Snake_Game:
         # Spawn the apple at a random position.
         # Step = 1 is the default, so we don't need to specify it.
         self.apple_x = random.randrange(1, 170)
-        self.apple_y = random.randrange(1, 170)
+        self.apple_y = random.randrange(15, 170)
 
         # ---------------- Snake Body ---------------- #
 
@@ -66,6 +66,13 @@ class Snake_Game:
     def update(self):
 
         if self.state == 'start':
+            self.speed = 0
+            self.score = 0
+            self.snake_x = 90
+            self.snake_y = 90
+            self.snake_coord = [
+            [self.snake_x, self.snake_y]
+                            ]
             if pyxel.btnp(pyxel.KEY_SPACE):
                 self.state = 'playing'
             elif pyxel.btnp(pyxel.KEY_Q):
@@ -81,28 +88,28 @@ class Snake_Game:
             if pyxel.btnp(pyxel.KEY_TAB):
                 self.state = 'paused'
             # Quit the game when Q is pressed.
-            if pyxel.btnp(pyxel.KEY_Q):
+            elif pyxel.btnp(pyxel.KEY_Q):
                 pyxel.quit()
 
             # Change direction.
             #
             # The second condition prevents the snake from
             # immediately reversing into itself.
-            elif pyxel.btn(pyxel.KEY_LEFT) and self.dir_x != 1:
-                self.dir_x = -1
+            elif pyxel.btn(pyxel.KEY_LEFT) and self.dir_x != self.speed:
+                self.dir_x = -self.speed
                 self.dir_y = 0
 
-            elif pyxel.btn(pyxel.KEY_RIGHT) and self.dir_x != -1:
-                self.dir_x = 1
+            elif pyxel.btn(pyxel.KEY_RIGHT) and self.dir_x != -self.speed:
+                self.dir_x = self.speed
                 self.dir_y = 0
 
-            elif pyxel.btn(pyxel.KEY_UP) and self.dir_y != 1:
+            elif pyxel.btn(pyxel.KEY_UP) and self.dir_y != self.speed:
                 self.dir_x = 0
-                self.dir_y = -1
+                self.dir_y = -self.speed
 
-            elif pyxel.btn(pyxel.KEY_DOWN) and self.dir_y != -1:
+            elif pyxel.btn(pyxel.KEY_DOWN) and self.dir_y != -self.speed:
                 self.dir_x = 0
-                self.dir_y = 1
+                self.dir_y = self.speed
 
             # ---------------- Self Collision ---------------- #
 
@@ -153,10 +160,10 @@ class Snake_Game:
                 and
                 self.snake_y <= self.apple_y <= self.snake_y + 4
             ):
-
+                self.score += 1
                 # Spawn a new apple.
                 self.apple_x = random.randrange(1, 170)
-                self.apple_y = random.randrange(1, 170)
+                self.apple_y = random.randrange(15, 170)
 
                 # Add the new head.
                 #
@@ -166,7 +173,8 @@ class Snake_Game:
                     0,
                     [self.snake_x, self.snake_y]
                 )
-
+                if self.score > 1 and self.score % 10 == 0:
+                    self.speed += 1 
             else:
 
                 # Normal movement.
@@ -206,6 +214,8 @@ class Snake_Game:
         #
         # segment[0] -> x-coordinate
         # segment[1] -> y-coordinate
+            pyxel.text(10, 10, f"Score: {self.score}", 15)
+            pyxel.text(130, 10, f"Speed: {self.speed}", 15)
             for segment in self.snake_coord:
                 pyxel.rect(
                     segment[0],
