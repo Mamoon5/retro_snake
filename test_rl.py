@@ -6,6 +6,7 @@ class Snake_Game:
     def __init__(self):
         # ---------------- Window Settings ---------------- #
         self.state = 'start'
+        self.action = ['LEFT', 'RIGHT', 'UP', 'DOWN']
         # Background color used when clearing the screen.
         self.bg_color = 5
         self.speed = 1
@@ -63,6 +64,10 @@ class Snake_Game:
         # Start the Pyxel game loop.
         pyxel.run(self.update, self.draw)
 
+    def choose_action(self):
+        random_dir = random.choice(self.action)
+        return random_dir
+
     def update(self):
 
         if self.state == 'start':
@@ -85,29 +90,32 @@ class Snake_Game:
             if pyxel.btnp(pyxel.KEY_SPACE):
                 self.state = 'playing'
         elif self.state == 'playing':
+            direction = self.choose_action()
             if pyxel.btnp(pyxel.KEY_TAB):
                 self.state = 'paused'
             # Quit the game when Q is pressed.
             elif pyxel.btnp(pyxel.KEY_Q):
                 pyxel.quit()
 
+
             # Change direction.
             #
             # The second condition prevents the snake from
             # immediately reversing into itself.
-            elif pyxel.btn(pyxel.KEY_LEFT) and self.dir_x != self.speed:
+
+            elif direction == 'LEFT' and self.dir_x != self.speed:
                 self.dir_x = -self.speed
                 self.dir_y = 0
 
-            elif pyxel.btn(pyxel.KEY_RIGHT) and self.dir_x != -self.speed:
+            elif direction == 'RIGHT' and self.dir_x != -self.speed:
                 self.dir_x = self.speed
                 self.dir_y = 0
 
-            elif pyxel.btn(pyxel.KEY_UP) and self.dir_y != self.speed:
+            elif direction == 'UP' and self.dir_y != self.speed:
                 self.dir_x = 0
                 self.dir_y = -self.speed
 
-            elif pyxel.btn(pyxel.KEY_DOWN) and self.dir_y != -self.speed:
+            elif direction == 'DOWN' and self.dir_y != -self.speed:
                 self.dir_x = 0
                 self.dir_y = self.speed
 
